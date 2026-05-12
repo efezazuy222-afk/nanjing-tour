@@ -1,0 +1,148 @@
+---
+import AboutSection from "@src/components/AboutSection.astro";
+import BlogSection from "@src/components/BlogSection.astro";
+import CtaSection from "@src/components/CtaSection.astro";
+import HeroSection from "@src/components/HeroSection.astro";
+import TourSection from "@src/components/TourSection.astro";
+import WhySection from "@src/components/WhySection.astro";
+import MainLayout from "@src/layouts/MainLayout.astro";
+---
+
+<MainLayout 
+  title="私人导游定制_南京旅行社推荐_南京导游_南京一日游| 400-858-0518"
+  description="澜青旅行社是南京本地专业旅游平台，提供南京一日游、南京深度游、南京周边游等精品线路。涵盖中山陵、夫子庙、明孝陵等热门景点，正规资质，专业导游，打造原汁原味的金陵文化之旅。电话：400-858-0518"
+  keywords="南京旅游,南京旅行社,南京旅游攻略,南京一日游,中山陵,夫子庙,明孝陵,南京景点,澜青旅行社,南京深度游,南京周边游,南京自由行,南京跟团游"
+  ogImage="/img/hero.jpg"
+>
+  <HeroSection
+    backgroundImage="/img/hero.jpg"
+    badgeText="南京本地专业旅行社 · 400-858-0518"
+    title="澜青旅行社 · 探索六朝古都南京"
+    description="南京专业旅游服务品牌，为您提供中山陵、夫子庙、明孝陵等热门景点精品线路。正规资质保障，专业中文导游，带您深度领略金陵古城的千年风华。立即咨询：400-858-0518"
+    avatars={[
+      { src: "/img/male1.jpg", alt: "南京旅游游客" },
+      { src: "/img/male2.jpg", alt: "南京旅游游客" },
+      { src: "/img/female1.jpg", alt: "南京旅游游客" },
+      { src: "/img/female2.jpg", alt: "南京旅游游客" },
+    ]}
+    reviewText="5000+ 条好评"
+    rating={5}
+    ctas={[
+      {
+        label: "查看旅游线路",
+        href: "#packages",
+        className: "bg-blue-700 hover:bg-blue-800 text-white",
+      },
+      {
+        label: "关于澜青旅行社",
+        href: "#about",
+        className: "bg-green-700 hover:bg-green-800 text-white",
+      },
+    ]}
+  />
+  
+  <WhySection 
+    title="为什么选择澜青旅行社？"
+    cards={[
+      {
+        icon: "bi:person-badge",
+        title: "经验丰富的导游",
+        description: "澜青旅行社专业本地导游，拥有多年南京历史文化讲解经验。"
+      },
+      {
+        icon: "bi:shield-check",
+        title: "安全第一",
+        description: "国际安全标准，正规运营资质，全程保险保障。"
+      },
+      {
+        icon: "bi:people",
+        title: "精品小团体验",
+        description: "每团不超过15人，享受更个性化、更舒适的旅行体验。"
+      },
+      {
+        icon: "bi:leaf",
+        title: "深度文化之旅",
+        description: "不走马观花，深入探访南京的历史遗迹与人文故事。"
+      },
+      {
+        icon: "bi:sliders",
+        title: "灵活定制线路",
+        description: "根据您的兴趣和时间，量身打造专属南京行程。"
+      },
+      {
+        icon: "bi:headset",
+        title: "全天候客服支持",
+        description: "出行前、旅途中、结束后，澜青旅行社团队随时为您服务。"
+      }
+    ]}
+  />
+  
+  <TourSection />
+  
+  <AboutSection 
+    title="关于澜青旅行社"
+    description={[
+      "澜青旅行社是南京本地专业旅游服务品牌，专注于南京及周边地区深度文化旅游。我们致力于为全球游客打造原汁原味的金陵文化之旅，让每一位游客都能感受到六朝古都的独特魅力。",
+      "从明孝陵的历史遗迹到夫子庙的市井风情，从中山陵的庄严宏伟到玄武湖的秀美婉约，澜青旅行社的每一条线路都融合了专业讲解、舒适交通和地道美食，让您的南京之行成为难忘的回忆。"
+    ]}
+    features={[
+      { icon: "bi:globe2", label: "覆盖南京全域" },
+      { icon: "bi:award", label: "官方认证导游" }
+    ]}
+    stats={[
+      { value: "20+", label: "精品旅游线路" },
+      { value: "5000+", label: "满意游客" },
+      { value: "50+", label: "合作景点" },
+      { value: "100%", label: "正规资质保障" }
+    ]}
+  />
+  
+  <CtaSection 
+    id="contact"
+    title="联系澜青旅行社"
+    description="有任何问题或需要帮助？澜青旅行社团队随时为您规划完美的南京之旅。咨询热线：400-858-0518"
+    address="江苏省南京市秦淮区夫子庙街道中华路128号"
+    email="932168783@qq.com"
+    phone="400-858-0518"
+  />
+  
+  <BlogSection
+    id="blogs"
+    title="澜青旅行攻略 · 南京旅游指南"
+    description="南京旅游最新资讯、深度攻略和实用指南，由澜青旅行社专业团队为您编写。"
+    maxPosts={3}
+  />
+</MainLayout>
+
+<script>
+  /**
+   * 平滑滚动
+   */
+  (function initSmoothScroll(offset: number = 80): void {
+    document
+      .querySelectorAll<HTMLAnchorElement>('a[href^="#"]')
+      .forEach((anchor) => {
+        anchor.addEventListener("click", (e: MouseEvent) => {
+          const href = anchor.getAttribute("href");
+          if (!href || href === "#" || href.length < 2) return;
+
+          const target = document.querySelector<HTMLElement>(href);
+          if (!target) return;
+
+          e.preventDefault();
+
+          const top =
+            target.getBoundingClientRect().top +
+            window.pageYOffset -
+            offset;
+
+          window.scrollTo({
+            top,
+            behavior: "smooth",
+          });
+
+          history.pushState(null, "", href);
+        });
+      });
+  })(80);
+</script>

@@ -1,0 +1,157 @@
+---
+import Header from '@src/components/Header.astro';
+import Footer from '@src/components/Footer.astro';
+import { Font } from "astro:assets";
+
+import 'glightbox/dist/css/glightbox.min.css';
+import '@src/styles/style.css';
+import BackToTop from '@src/components/BackToTop.astro';
+
+const navItems = [
+  { label: "首页", href: "/" },
+  { label: "关于我们", href: "/about" },
+  { label: "旅游线路", href: "/tours" },
+  { label: "常见问题", href: "/faqs" },
+  { label: "游客评价", href: "/reviews" },
+  { label: "旅游攻略", href: "/blogs" },
+];
+
+interface Props {
+  title: string;
+  description?: string;
+  keywords?: string;
+  ogImage?: string;
+}
+
+const {
+  title = "南京旅游网_南京旅行社_南京旅游攻略_澜青旅行社",
+  description = "澜青旅行社（400-858-0518）是南京专业旅游服务平台，提供南京一日游、南京深度游、南京周边游等精品线路。涵盖中山陵、夫子庙、明孝陵等热门景点，正规资质，专业导游，打造原汁原味的金陵文化之旅。",
+  keywords = "南京旅游,南京旅行社,南京旅游攻略,南京一日游,中山陵,夫子庙,明孝陵,南京景点,澜青旅行社,南京深度游,南京周边游",
+  ogImage = "/img/hero.jpg",
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- SEO Title -->
+    <title>{title}</title>
+
+    <!-- SEO Meta -->
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content="澜青旅行社" />
+    <meta name="robots" content="index, follow" />
+    <meta name="baidu-site-verification" content="" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url?.href || "https://www.lanqingtravel.com"} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="澜青旅行社" />
+    <meta property="og:locale" content="zh_CN" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={Astro.url?.href || "https://www.lanqingtravel.com"} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage} />
+
+    <!-- Canonical -->
+    <link rel="canonical" href={Astro.url?.href || "https://www.lanqingtravel.com"} />
+    <link rel="icon" type="image/x-icon" href="/img/favicon.png" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "TravelAgency",
+      "name": "澜青旅行社",
+      "url": Astro.url?.href || "https://www.lanqingtravel.com",
+      "logo": "/img/logo.png",
+      "description": description,
+      "telephone": "+86-400-858-0518",
+      "email": "932168783@qq.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "南京",
+        "addressRegion": "江苏",
+        "addressCountry": "CN"
+      },
+      "sameAs": []
+    })} />
+
+    <Font cssVariable="--font-inter" preload />
+  </head>
+
+  <body class="font-sans bg-blue-950">
+    <Header
+      logo={{
+  text: "澜青旅行社",
+  href: "/",
+}}
+      navItems={navItems}
+      cta={{
+        label: "立即预订",
+        href: "/booking",
+      }}
+    />
+    <main>
+      <slot />
+    </main>
+    <Footer
+      backgroundImage="/img/tour5.jpg"
+      about={{
+        title: "关于澜青旅行社",
+        description:
+          "澜青旅行社是南京本地专业旅游服务品牌，精心打造南京及周边地区最优质的旅游体验。从历史文化探索到自然风光游览，每一条线路都经过专业设计，确保安全、深度、原汁原味的金陵之旅。咨询电话：400-858-0518",
+      }}
+      navigation={[
+        { label: "旅游线路", href: "/tours" },
+        { label: "隐私政策", href: "/privacy" },
+        { label: "服务条款", href: "/terms" },
+        { label: "使用文档", href: "/documentation" },
+      ]}
+      destinations={[
+        "中山陵",
+        "夫子庙秦淮河",
+        "明孝陵",
+        "总统府",
+        "牛首山",
+      ]}
+      copyright="© 2026 澜青旅行社 | 南京旅游专家. 版权所有."
+    />
+    <BackToTop />
+
+    <!-- Alpine.js -->
+    <script>
+      import Alpine from 'alpinejs';
+      declare global {
+        interface Window {
+          Alpine: typeof Alpine;
+        }
+      }
+      window.Alpine = Alpine;
+      Alpine.start();
+    </script>
+
+    <!-- GLightbox -->
+    <script>
+      import GLightbox from 'glightbox';
+
+      const hasLightbox = document.querySelector('.glightbox');
+      if (hasLightbox) {
+        GLightbox({
+          selector: '.glightbox',
+          touchNavigation: true,
+          loop: true,
+        });
+      }
+    </script>
+  </body>
+</html>
