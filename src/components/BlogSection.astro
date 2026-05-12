@@ -17,8 +17,8 @@ export interface BlogSectionProps {
 ========================= */
 const {
   id = "blogs",
-  title = "Ocean Travel Journal",
-  description = "Stories, guides, and inspiration from the world of ocean travel.",
+  title = "澜青旅行攻略",
+  description = "南京旅游最新资讯、深度攻略和实用指南，由澜青旅行社专业团队为您编写。",
   maxPosts = 3,
 } = Astro.props as BlogSectionProps;
 
@@ -27,7 +27,6 @@ const {
 ========================= */
 const allPosts = await getCollection("blog");
 
-// Sort posts by date (newest first)
 const posts = allPosts.sort((a, b) => {
   const dateA =
     typeof a.data.date === "string" ? new Date(a.data.date) : a.data.date;
@@ -36,7 +35,6 @@ const posts = allPosts.sort((a, b) => {
   return dateB.valueOf() - dateA.valueOf();
 });
 
-// Limit posts
 const visiblePosts = posts.slice(0, maxPosts);
 ---
 <!-- Blog Section -->
