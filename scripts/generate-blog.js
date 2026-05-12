@@ -1,116 +1,167 @@
-// 自动生成南京旅游博客 .mdx 文件
-// 用法：node scripts/generate-blog.js
-
+// 自动生成南京旅游博客 - DeepSeek AI + Unsplash 图片
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const blogTopics = [
-  {
-    title: "南京三日游完美攻略",
-    category: "行程规划",
-    description: "三天时间如何玩转南京？这篇攻略告诉你最佳路线",
-    tags: ["南京攻略", "三日游", "行程规划", "金陵", "自由行"]
-  },
-  {
-    title: "南京必吃美食清单",
-    category: "美食推荐",
-    description: "鸭血粉丝汤、盐水鸭、小笼包...南京美食一网打尽",
-    tags: ["南京美食", "小吃", "金陵菜", "美食攻略", "吃货必看"]
-  },
-  {
-    title: "南京赏秋最佳地点推荐",
-    category: "季节推荐",
-    description: "栖霞山红叶、灵谷寺桂花，南京秋天美不胜收",
-    tags: ["南京秋天", "赏枫", "栖霞山", "季节游", "秋色"]
-  },
-  {
-    title: "南京地铁沿线景点大全",
-    category: "交通攻略",
-    description: "乘坐地铁玩转南京，沿线景点一票通",
-    tags: ["南京地铁", "交通攻略", "景点", "出行", "自由行"]
-  },
-  {
-    title: "南京民国建筑漫步指南",
-    category: "文化历史",
-    description: "颐和路、1912街区...感受南京独特的民国风情",
-    tags: ["民国建筑", "南京历史", "颐和路", "文化游", "citywalk"]
-  },
-  {
-    title: "南京周边一日游推荐",
-    category: "周边游",
-    description: "汤山温泉、溧水天生桥，南京周边也好玩",
-    tags: ["周边游", "一日游", "汤山", "溧水", "周末游"]
-  }
-];
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+const UNSPLASH_API_URL = 'https://api.unsplash.com/search/photos';
 
-function generateBlogMDX(topic) {
-  const date = new Date().toISOString().split('T')[0];
+if (!DEEPSEEK_API_KEY) {
+  console.error('❌ 缺少 DEEPSEEK_API_KEY 环境变量');
+  process.exit(1);
+}
+
+if (!UNSPLASH_ACCESS_KEY) {
+  console.error('❌ 缺少 UNSPLASH_ACCESS_KEY 环境变量');
+  process.exit(1);
+}
+
+async function fetchCoverImage(query) {
+  try {
+    const response = await fetch(
+      `${UNSPLASH_API_URL}?query=${encodeURIComponent(query + ' nanjing china tourism')}&per_page=1&orientation=landscape`,
+      {
+        headers: {
+          'Authorization': `Client-ID ${UNSPLASH_ACCESS_KEY}`
+        }
+      }
+    );
+    const data = await response.json();
+    if (data.results && data.results.length > 0) {
+      return data.results[0].urls.regular;
+    }
+  } catch (error) {
+    console.warn('⚠️ Unsplash 获取失败，使用默认图片');
+  }
+  return '/img/blog-nanjing-default.jpg';
+}
+
+function fixAuthorField(content) {
+  // 修复 author 字段格式：确保是对象格式
+  // 如果 author 是字符串 "澜青旅行社"，转为对象格式
+  content = content.replace(
+    /author:\s*"澜青旅行社"/,
+    `author:
+  name: "澜青旅行社"
+  job: "南京旅游规划师"
+  avatar: "/img/female3.jpg"`
+  );
   
-  return `---
-title: "${topic.title}"
-cover: "/img/blog-nanjing-default.jpg"
-date: "${date}"
-category: "${topic.category}"
-description: "${topic.description}"
-tags:
-  - ${topic.tags.join('\n  - ')}
-readTime: ${Math.floor(Math.random() * 5) + 4}
+  // 如果 author 已经是对象但格式不对，尝试修复
+  if (!content.includes('author:')) {
+    // 在 readTime 后面插入 author
+    content = content.replace(
+      /(readTime:\s*\d+)/,
+      `$1
 
 author:
-  name: "金陵文旅"
+  name: "澜青旅行社"
+  job: "南京旅游规划师"
+  avatar: "/img/female3.jpg"`
+    );
+  }
+  
+  return content;
+}
+
+async function generateBlogContent() {
+  const topics = [
+    '南京三日游攻略', '南京必吃美食', '南京赏秋地点推荐', 
+    '南京地铁沿线景点', '南京民国建筑漫步', '南京周边一日游',
+    '南京亲子游推荐', '南京免费景点汇总', '南京赏樱攻略',
+    '南京温泉推荐', '南京小众打卡地', '南京夜游指南'
+  ];
+  
+  const topic = topics[Math.floor(Math.random() * topics.length)];
+
+  const prompt = `你是一个南京旅游博主。请生成一篇关于"${topic}"的博客文章 .mdx 文件。
+
+⚠️ 严格要求：直接返回 .mdx 内容，不要任何额外说明或代码块标记。
+
+frontmatter 必须严格按以下格式（直接复制这个模板，替换内容）：
+
+---
+title: "${topic}"
+cover: "COVER_PLACEHOLDER"
+date: "${new Date().toISOString().split('T')[0]}"
+category: "分类名"
+description: "简短描述"
+tags:
+  - 标签1
+  - 标签2
+  - 标签3
+  - 标签4
+  - 标签5
+readTime: 数字
+
+author:
+  name: "澜青旅行社"
   job: "南京旅游规划师"
   avatar: "/img/female3.jpg"
 ---
 
-${topic.description}
+正文用Markdown格式，至少4个二级标题，内容丰富实用，全部用中文。`;
 
-南京作为六朝古都，拥有丰富的历史文化遗产和自然风光。本文将为您详细介绍${topic.title.split('攻略')[0] || topic.title}的方方面面。
+  try {
+    // 1. 调用 DeepSeek 生成文字内容
+    const response = await fetch(DEEPSEEK_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: '你是一个专业的南京旅游博主。只返回.mdx格式的内容，严格遵循frontmatter格式要求，不要任何额外说明。author字段必须是对象格式包含name、job、avatar三个子字段。' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.8,
+        max_tokens: 2500
+      })
+    });
 
-## 一、为什么选择南京
-
-南京是中国四大古都之一，有"六朝古都"、"十朝都会"之称。这里既有深厚的历史底蕴，又有现代化的都市风貌。
-
-## 二、交通指南
-
-南京禄口国际机场、南京南站、南京站三大交通枢纽，地铁网络覆盖主要景区，出行便利。
-
-## 三、住宿推荐
-
-建议选择新街口、夫子庙、玄武湖附近，交通便利，美食众多。
-
-## 四、注意事项
-
-- 提前查看天气预报
-- 部分景点需预约购票
-- 春秋季节最美，但也是旺季
-
-## 结语
-
-${topic.description.split('。')[0]}。希望这篇攻略能为您的南京之旅提供帮助，祝旅途愉快！
-`;
+    const data = await response.json();
+    let content = data.choices[0].message.content;
+    
+    // 2. 修复 author 字段格式
+    content = fixAuthorField(content);
+    
+    // 3. 从 Unsplash 获取封面图
+    console.log(`🖼️ 正在获取"${topic}"的封面图...`);
+    const coverImage = await fetchCoverImage(topic);
+    
+    // 4. 替换封面图
+    content = content.replace(/COVER_PLACEHOLDER/, coverImage);
+    content = content.replace(/cover:\s*"\/img\/blog-nanjing-default\.jpg"/, `cover: "${coverImage}"`);
+    
+    // 5. 生成文件名并写入
+    const titleMatch = content.match(/title:\s*"(.+?)"/);
+    const slug = titleMatch 
+      ? titleMatch[1].replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '')
+      : `blog-${Date.now()}`;
+    const fileName = `${slug}.mdx`;
+    
+    const blogsDirs = [
+      path.join(__dirname, '..', 'src', 'content', 'blog'),
+      path.join(__dirname, '..', 'src', 'pages', 'blogs')
+    ];
+    
+    blogsDirs.forEach(dir => {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, fileName), content, 'utf-8');
+    });
+    
+    console.log(`✅ AI已生成博客文章：${fileName}（含真实封面图）`);
+    return true;
+  } catch (error) {
+    console.error('❌ 生成失败:', error.message);
+    return false;
+  }
 }
 
-const randomTopic = blogTopics[Math.floor(Math.random() * blogTopics.length)];
-const mdxContent = generateBlogMDX(randomTopic);
-const slug = randomTopic.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\u4e00-\u9fa5-]/g, '');
-const fileName = `${slug}.mdx`;
-
-// 写入两个位置：pages/blogs/ 和 content/blog/
-const blogsDirs = [
-  path.join(__dirname, '..', 'src', 'pages', 'blogs'),
-  path.join(__dirname, '..', 'src', 'content', 'blog')
-];
-
-blogsDirs.forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(path.join(dir, fileName), mdxContent, 'utf-8');
-});
-
-console.log(`✅ 已生成博客文章：${fileName}`);
-console.log(`📝 标题：${randomTopic.title}`);
-console.log(`📂 已同步到 pages/blogs/ 和 content/blog/`);
+generateBlogContent();
